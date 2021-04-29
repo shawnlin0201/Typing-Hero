@@ -23,25 +23,33 @@ const config = {
     type: Phaser.AUTO,
     width: 640,
     height: 320,
-    scene
+    scene,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 500 },
+            debug: true
+        }
+    }
 }
 
 const game = new Phaser.Game(config)
 
 scene.init = function(){
-    this.playerSpeed = 3
+    this.playerSpeed = 4
     this.keyboard = null
 }
 
 scene.preload = function(){
-    this.load.spritesheet('player', 'images/characters/Robot/Tilesheet/character_robot_sheetHD.png', {
+    // this.load.spritesheet('player', 'images/characters/Robot/Tilesheet/character_robot_sheetHD.png', {
+    this.load.spritesheet('player', 'images/characters/Zombie/Tilesheet/character_zombie_sheetHD.png', {
         frameWidth: 192,
         frameHeight: 256
     })
     this.load.image('zombie', 'images/characters/Zombie/PNG/Poses/character_zombie_wide.png')
     this.load.image('bg', 'images/background.png')
 
-    for(let i = 0; i < 200; i++) {
+    for(let i = 0; i < 100; i++) {
         this.load.image('bg'+i, 'images/background.png')
     }
     
@@ -66,11 +74,21 @@ scene.create = function(){
     this.keyboard = this.input.keyboard.createCursorKeys()
     
     // player
-    this.player = this.add.sprite(100, 100, 'player').setInteractive()
+    this.player = this.add.sprite(100, 50, 'player').setInteractive()
     this.input.setDraggable(this.player)
     this.player.displayWidth = 92
     this.player.displayHeight = 128
+    this.player.width = 92
+    this.player.height = 128
+    console.log(this.player)
     this.player.depth = 1
+    this.physics.add.existing(this.player)
+
+    this.ground = this.add.sprite(0, sysHeight, 'tile')
+    this.ground.setOrigin(0, 0)
+    this.ground.width = sysWidth
+    this.physics.add.existing(this.ground, true)
+    this.physics.add.collider(this.player, this.ground)
 
     // text
     this.text = this.add.text(12, 12, `x: ${this.player.x} y:${this.player.y}`, {
@@ -83,7 +101,6 @@ scene.create = function(){
     this.input.on('drag', function(pointer, gameObj, dragX, dragY) {
         gameObj.x = dragX
         gameObj.y = dragY
-        this.text.setText(`x: ${gameObj.player.x} y:${gameObj.player.y}`)
     })
 
     // anims
@@ -92,6 +109,26 @@ scene.create = function(){
         frames: this.anims.generateFrameNumbers('player', {
             start: 0,
             end: 0
+        }),
+        frameRate: 1,
+        repeat: -1
+    })
+
+    this.anims.create({
+        key: 'crouch',
+        frames: this.anims.generateFrameNumbers('player', {
+            start: 3,
+            end: 3
+        }),
+        frameRate: 1,
+        repeat: -1
+    })
+
+    this.anims.create({
+        key: 'jump',
+        frames: this.anims.generateFrameNumbers('player', {
+            start: 8,
+            end: 8
         }),
         frameRate: 1,
         repeat: -1
@@ -121,26 +158,32 @@ scene.create = function(){
 
 scene.update = function(){
     // this.cameras.main.shake(500)
-    if(this.keyboard.right.isDown){
+    if(this.keyboard.up.isDown){
+        this.player.y -= this.playerSpeed
+        if(this.keyboard.left.isDown){this.player.flipX = true; this.player.x -= this.playerSpeed}
+        else if(this.keyboard.right.isDown){this.player.flipX = false; this.player.x += this.playerSpeed}
+
+        this.player.anims.play('jump', true)
+        this.text.setText(`x: ${this.player.x} y:${this.player.y}`)
+    }
+    else if(this.keyboard.right.isDown){
         this.player.flipX = false
         this.player.x += this.playerSpeed
+
         this.player.anims.play('walk', true)
         this.text.setText(`x: ${this.player.x} y:${this.player.y}`)
     }
     else if(this.keyboard.left.isDown){
         this.player.flipX = true
         this.player.x -= this.playerSpeed
-        this.player.anims.play('walk', true)
-        this.text.setText(`x: ${this.player.x} y:${this.player.y}`)
-    }
-    else if(this.keyboard.up.isDown){
-        this.player.y -= this.playerSpeed
+
         this.player.anims.play('walk', true)
         this.text.setText(`x: ${this.player.x} y:${this.player.y}`)
     }
     else if(this.keyboard.down.isDown){
-        this.player.y += this.playerSpeed
-        this.player.anims.play('walk', true)
+        // this.player.y += this.playerSpeed
+
+        this.player.anims.play('crouch', true)
         this.text.setText(`x: ${this.player.x} y:${this.player.y}`)
     }
     else {
