@@ -29,7 +29,7 @@ const config = {
 const game = new Phaser.Game(config)
 
 scene.init = function(){
-    this.playerSpeed = 2
+    this.playerSpeed = 3
     this.keyboard = null
 }
 
@@ -38,9 +38,25 @@ scene.preload = function(){
         frameWidth: 192,
         frameHeight: 256
     })
-    // this.load.image('player', 'images/characters/Robot/PNG/Poses/character_robot_wide.png')
     this.load.image('zombie', 'images/characters/Zombie/PNG/Poses/character_zombie_wide.png')
     this.load.image('bg', 'images/background.png')
+
+    for(let i = 0; i < 200; i++) {
+        this.load.image('bg'+i, 'images/background.png')
+    }
+    
+    const precentText = this.add.text(320, 160, '', {
+        font: '20px Open Sans',
+        fill: '#ffffff'
+    }).setOrigin(0.5, 0.5)
+
+    this.load.on('progress', value => {
+        precentText.setText(parseInt(value * 100) + '%')
+    })
+
+    this.load.on('complete', () => {
+        precentText.destroy()
+    })
 }
 
 scene.create = function(){
@@ -56,18 +72,28 @@ scene.create = function(){
     this.player.displayHeight = 128
     this.player.depth = 1
 
+    // text
+    this.text = this.add.text(12, 12, `x: ${this.player.x} y:${this.player.y}`, {
+        font: '20px Open Sans',
+        fill: '#000000'
+    })
+    this.text.depth = 2
+
+    // drag
     this.input.on('drag', function(pointer, gameObj, dragX, dragY) {
         gameObj.x = dragX
         gameObj.y = dragY
+        this.text.setText(`x: ${gameObj.player.x} y:${gameObj.player.y}`)
     })
 
+    // anims
     this.anims.create({
         key: 'stand',
         frames: this.anims.generateFrameNumbers('player', {
             start: 0,
             end: 0
         }),
-        frameRate: 10,
+        frameRate: 1,
         repeat: -1
     })
 
@@ -77,7 +103,7 @@ scene.create = function(){
             start: 36,
             end: 43
         }),
-        frameRate: 10,
+        frameRate: 25,
         repeat: -1
     })
 
@@ -90,8 +116,6 @@ scene.create = function(){
     this.background = this.add.sprite(0, 0, 'bg')
     this.background.setPosition(sysWidth / 2, sysHeight / 2)
     this.background.depth = 0
-
-    console.log(this.player)
     
 }
 
@@ -101,19 +125,23 @@ scene.update = function(){
         this.player.flipX = false
         this.player.x += this.playerSpeed
         this.player.anims.play('walk', true)
+        this.text.setText(`x: ${this.player.x} y:${this.player.y}`)
     }
     else if(this.keyboard.left.isDown){
         this.player.flipX = true
         this.player.x -= this.playerSpeed
         this.player.anims.play('walk', true)
+        this.text.setText(`x: ${this.player.x} y:${this.player.y}`)
     }
     else if(this.keyboard.up.isDown){
         this.player.y -= this.playerSpeed
         this.player.anims.play('walk', true)
+        this.text.setText(`x: ${this.player.x} y:${this.player.y}`)
     }
     else if(this.keyboard.down.isDown){
         this.player.y += this.playerSpeed
         this.player.anims.play('walk', true)
+        this.text.setText(`x: ${this.player.x} y:${this.player.y}`)
     }
     else {
         this.player.anims.play('stand', true)
