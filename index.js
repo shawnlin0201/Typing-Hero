@@ -21,14 +21,14 @@ const scene = new Phaser.Scene("Game");
 
 const config = {
   type: Phaser.AUTO,
-  width: 640,
-  height: 320,
+  width: 800,
+  height: 450,
   scene,
   physics: {
     default: "arcade",
     arcade: {
       gravity: { y: 1000 },
-      // debug: true
+      debug: true
     },
   },
 };
@@ -44,24 +44,17 @@ scene.init = function () {
 };
 
 scene.preload = function () {
-  // this.load.spritesheet('player', 'images/characters/Zombie/Tilesheet/character_zombie_sheetHD.png', {
   this.load.spritesheet(
     "player",
-    "images/characters/Robot/Tilesheet/character_robot_sheetHD.png",
-    {
-      frameWidth: 192,
-      frameHeight: 256,
-    }
+    "images/characters/Zombie/Tilesheet/character_zombie_sheetHD.png",
+    { frameWidth: 192, frameHeight: 256 }
   );
-  this.load.image(
-    "zombie",
-    "images/characters/Zombie/PNG/Poses/character_zombie_wide.png"
-  );
-  this.load.image("bg", "images/background.png");
-
-  for (let i = 0; i < 100; i++) {
-    this.load.image("bg" + i, "images/background.png");
-  }
+  this.load.image("bg1", "images/background/plx-1.png");
+  this.load.image("bg2", "images/background/plx-2.png");
+  this.load.image("bg3", "images/background/plx-3.png");
+  this.load.image("bg4", "images/background/plx-4.png");
+  this.load.image("bg5", "images/background/plx-5.png");
+  this.load.image("ground", "images/background/ground.png");
 
   const precentText = this.add
     .text(320, 160, "", {
@@ -85,21 +78,63 @@ scene.create = function () {
   const sysHeight = this.sys.game.config.height;
   this.keyboard = this.input.keyboard.createCursorKeys();
 
+  // background
+  this.bg1 = this.add.tileSprite(
+    sysWidth / 2,
+    sysHeight / 2,
+    sysWidth,
+    sysHeight,
+    "bg1"
+  );
+  this.bg2 = this.add.tileSprite(
+    sysWidth / 2,
+    sysHeight / 2,
+    sysWidth,
+    sysHeight,
+    "bg2"
+  );
+  this.bg3 = this.add.tileSprite(
+    sysWidth / 2,
+    sysHeight / 2,
+    sysWidth,
+    sysHeight,
+    "bg3"
+  );
+  this.bg4 = this.add.tileSprite(
+    sysWidth / 2,
+    sysHeight / 2,
+    sysWidth,
+    sysHeight,
+    "bg4"
+  );
+  this.bg5 = this.add.tileSprite(
+    sysWidth / 2,
+    sysHeight / 2,
+    sysWidth,
+    sysHeight,
+    "bg5"
+  );
+  this.ground = this.add.tileSprite(
+    sysWidth / 2,
+    sysHeight * 0.98,
+    sysWidth,
+    sysHeight * 0.4,
+    "ground"
+  );
+  this.physics.add.existing(this.ground, true);
+  this.ground.body.immovable = true;
+  this.ground.body.moves = false;
+
   // player
-  this.player = this.add.sprite(100, 50, "player").setInteractive();
+  this.player = this.add.sprite(200, 50, "player").setInteractive();
   this.input.setDraggable(this.player);
   this.player.displayWidth = 92;
   this.player.displayHeight = 128;
   this.player.width = 92;
   this.player.height = 128;
-  console.log(this.player);
   this.player.depth = 1;
   this.physics.add.existing(this.player);
 
-  this.ground = this.add.sprite(0, sysHeight, "tile");
-  this.ground.setOrigin(0, 0);
-  this.ground.width = sysWidth;
-  this.physics.add.existing(this.ground, true);
   this.physics.add.collider(this.player, this.ground);
 
   // text
@@ -108,12 +143,6 @@ scene.create = function () {
     fill: "#000000",
   });
   this.text.depth = 2;
-
-//   // drag
-//   this.input.on("drag", function (pointer, gameObj, dragX, dragY) {
-//     gameObj.x = dragX;
-//     gameObj.y = dragY;
-//   });
 
   // anims
   this.anims.create({
@@ -175,102 +204,141 @@ scene.create = function () {
     frameRate: 25,
     repeat: -1,
   });
-
-  // zombie
-  this.zombie = this.add.sprite(500, 100, "zombie");
-  this.zombie.depth = 1;
-
-  // background
-  this.background = this.add.sprite(0, 0, "bg");
-  this.background.setPosition(sysWidth / 2, sysHeight / 2);
-  this.background.depth = 0;
 };
 
 scene.update = function () {
   // this.cameras.main.shake(500)
-  const enableMoveModule = true
-  const enableBoundModule = false
+  const enableBackgroundMoving = true;
+  const enableMoveModule = true;
+	const enableBoundModule = false;
 
+	const pressUp = this.keyboard.up.isDown;
+	const pressDown = this.keyboard.down.isDown;
+	const pressLeft = this.keyboard.left.isDown;
+	const pressRight = this.keyboard.right.isDown;
+	const onTheGround = this.player.body.blocked.down;
+	
+	const defaultBackgroundParallaxLevel = {
+		bg1: 0,
+		bg2: 0.9,
+		bg3: 1.8,
+		bg4: 3,
+		bg5: 4.5,
+		ground: 4.5
+	}
+
+	/** Background Module */
+	if (enableBackgroundMoving) {
+		const backgroundParallaxLevel = JSON.parse(JSON.stringify(defaultBackgroundParallaxLevel))
+
+		if(pressDown && (pressLeft || pressRight)){
+			backgroundParallaxLevel['bg1'] = 0
+			backgroundParallaxLevel['bg2'] = 2.9
+			backgroundParallaxLevel['bg3'] = 3.8
+			backgroundParallaxLevel['bg4'] = 5
+			backgroundParallaxLevel['bg5'] = 6.5
+			backgroundParallaxLevel['ground'] = 6.5
+		}
+
+		if(pressRight){
+				this.bg1.tilePositionX += backgroundParallaxLevel['bg1'];
+				this.bg2.tilePositionX += backgroundParallaxLevel['bg2'];
+				this.bg3.tilePositionX += backgroundParallaxLevel['bg3'];
+				this.bg4.tilePositionX += backgroundParallaxLevel['bg4'];
+				this.bg5.tilePositionX += backgroundParallaxLevel['bg5'];
+				this.ground.tilePositionX += backgroundParallaxLevel['ground'];
+		}
+		if(pressLeft){
+				this.bg1.tilePositionX -= backgroundParallaxLevel['bg1'];
+				this.bg2.tilePositionX -= backgroundParallaxLevel['bg2'];
+				this.bg3.tilePositionX -= backgroundParallaxLevel['bg3'];
+				this.bg4.tilePositionX -= backgroundParallaxLevel['bg4'];
+				this.bg5.tilePositionX -= backgroundParallaxLevel['bg5'];
+				this.ground.tilePositionX -= backgroundParallaxLevel['ground'];
+		}
+	}
 
   /** Move Module */
-  if(enableMoveModule){
-    const pressUp = this.keyboard.up.isDown;
-    const pressDown = this.keyboard.down.isDown;
-    const pressLeft = this.keyboard.left.isDown;
-    const pressRight = this.keyboard.right.isDown;
-    const onTheGround = this.player.body.blocked.down;
+  if (enableMoveModule) {
 
     if (pressUp) {
-        // this.player.y -= this.playerSpeed
-        if (onTheGround) { this.player.anims.play("stand", true); this.player.body.setVelocityY(this.playerJumpHeight); }
-        if (!onTheGround) { this.player.anims.play("atSpace", true);}
-        if (pressLeft) { this.player.flipX = true; this.player.x -= this.playerSpeed;}
-        else if (pressRight) { this.player.flipX = false; this.player.x += this.playerSpeed; }
-
-    } else if (pressDown) {
-        // this.player.y += this.playerSpeed
-
-        // this.player.anims.play('crouch', true)
-
-        if (onTheGround && pressLeft) {
-            this.player.flipX = true;
-            this.player.x -= (this.playerSpeed + this.playerBoostSpeed);
-            this.player.anims.play("slide", true);
-        } else if (onTheGround && pressRight) {
-            this.player.flipX = false;
-            this.player.x += (this.playerSpeed + this.playerBoostSpeed);
-            this.player.anims.play("slide", true);
-        } else if (!onTheGround && pressLeft) {
-            this.player.flipX = true;
-            this.player.x -= this.playerSpeed;
-            this.player.y += this.playerFallingBoostSpeed
-            this.player.anims.play("slideAtSpace", true);
-        } else if (!onTheGround && pressRight) {
-            this.player.flipX = false;
-            this.player.x += this.playerSpeed;
-            this.player.y += this.playerFallingBoostSpeed
-            this.player.anims.play("slideAtSpace", true);
-        } else if ( onTheGround && !pressLeft && !pressRight ) {
-            this.player.anims.play("crouch", true)
-        } else if ( !onTheGround && !pressLeft && !pressRight ) {
-            // this.cameras.main.shake(20)
-            this.player.y += this.playerFallingBoostSpeed
-            this.player.anims.play("crouch", true)
-        }
-        
-
-    } else if (pressRight) {
-        this.player.flipX = false;
-        this.player.x += this.playerSpeed;
-
-        this.player.anims.play("walk", true);
-    } else if (pressLeft) {
-        this.player.flipX = true;
-        this.player.x -= this.playerSpeed;
-
-        this.player.anims.play("walk", true);
-    } else {
-        /** default */
+      // this.player.y -= this.playerSpeed
+      if (onTheGround) {
         this.player.anims.play("stand", true);
-        this.player.anims.stop();
+        this.player.body.setVelocityY(this.playerJumpHeight);
+      }
+      if (!onTheGround) {
+        this.player.anims.play("atSpace", true);
+      }
+      if (pressLeft) {
+        this.player.flipX = true;
+        // this.player.x -= this.playerSpeed;
+      } else if (pressRight) {
+        this.player.flipX = false;
+        // this.player.x += this.playerSpeed;
+      }
+    } else if (pressDown) {
+      // this.player.y += this.playerSpeed
+
+      // this.player.anims.play('crouch', true)
+
+      if (onTheGround && pressLeft) {
+				this.player.flipX = true;
+        // this.player.x -= this.playerSpeed + this.playerBoostSpeed;
+        this.player.anims.play("slide", true);
+      } else if (onTheGround && pressRight) {
+        this.player.flipX = false;
+        // this.player.x += this.playerSpeed + this.playerBoostSpeed;
+        this.player.anims.play("slide", true);
+      } else if (!onTheGround && pressLeft) {
+        this.player.flipX = true;
+        // this.player.x -= this.playerSpeed;
+        this.player.y += this.playerFallingBoostSpeed;
+        this.player.anims.play("slideAtSpace", true);
+      } else if (!onTheGround && pressRight) {
+        this.player.flipX = false;
+        // this.player.x += this.playerSpeed;
+        this.player.y += this.playerFallingBoostSpeed;
+        this.player.anims.play("slideAtSpace", true);
+      } else if (onTheGround && !pressLeft && !pressRight) {
+        this.player.anims.play("crouch", true);
+      } else if (!onTheGround && !pressLeft && !pressRight) {
+        // this.cameras.main.shake(20)
+        this.player.y += this.playerFallingBoostSpeed;
+        this.player.anims.play("crouch", true);
+      }
+    } else if (pressRight) {
+      this.player.flipX = false;
+      // this.player.x += this.playerSpeed;
+
+      this.player.anims.play("walk", true);
+    } else if (pressLeft) {
+      this.player.flipX = true;
+      // this.player.x -= this.playerSpeed;
+
+      this.player.anims.play("walk", true);
+    } else {
+      /** default */
+      this.player.anims.play("stand", true);
+      this.player.anims.stop();
     }
   }
 
   /** Bound Module */
-  if(enableBoundModule){
-      const playerRect = this.player.getBounds();
-      const zombieRect = this.zombie.getBounds();
-    
-      if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, zombieRect)) {
-        this.cameras.main.shake(500);
-    
-        this.cameras.main.on("camerashakecomplete", () => {
-          this.cameras.main.fade(2000);
-        });
-    
-        this.cameras.main.on("camerafadeoutcomplete", () => {
-          this.scene.restart();
-        });
-      }
+  if (enableBoundModule) {
+    const playerRect = this.player.getBounds();
+    const zombieRect = this.zombie.getBounds();
+
+    if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, zombieRect)) {
+      this.cameras.main.shake(500);
+
+      this.cameras.main.on("camerashakecomplete", () => {
+        this.cameras.main.fade(2000);
+      });
+
+      this.cameras.main.on("camerafadeoutcomplete", () => {
+        this.scene.restart();
+      });
+    }
   }
 };
