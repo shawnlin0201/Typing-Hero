@@ -28,7 +28,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 500 },
-            debug: true
+            // debug: true
         }
     }
 }
@@ -41,8 +41,8 @@ scene.init = function(){
 }
 
 scene.preload = function(){
-    // this.load.spritesheet('player', 'images/characters/Robot/Tilesheet/character_robot_sheetHD.png', {
-    this.load.spritesheet('player', 'images/characters/Zombie/Tilesheet/character_zombie_sheetHD.png', {
+    // this.load.spritesheet('player', 'images/characters/Zombie/Tilesheet/character_zombie_sheetHD.png', {
+    this.load.spritesheet('player', 'images/characters/Robot/Tilesheet/character_robot_sheetHD.png', {
         frameWidth: 192,
         frameHeight: 256
     })
