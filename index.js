@@ -28,7 +28,7 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 1000 },
-      debug: true
+      debug: true,
     },
   },
 };
@@ -55,6 +55,7 @@ scene.preload = function () {
   this.load.image("bg4", "images/background/plx-4.png");
   this.load.image("bg5", "images/background/plx-5.png");
   this.load.image("ground", "images/background/ground.png");
+  this.load.audio("intro", ["./audio/forest.wav"]);
 
   const precentText = this.add
     .text(320, 160, "", {
@@ -210,57 +211,58 @@ scene.update = function () {
   // this.cameras.main.shake(500)
   const enableBackgroundMoving = true;
   const enableMoveModule = true;
-	const enableBoundModule = false;
+  const enableBoundModule = false;
 
-	const pressUp = this.keyboard.up.isDown;
-	const pressDown = this.keyboard.down.isDown;
-	const pressLeft = this.keyboard.left.isDown;
-	const pressRight = this.keyboard.right.isDown;
-	const onTheGround = this.player.body.blocked.down;
-	
-	const defaultBackgroundParallaxLevel = {
-		bg1: 0,
-		bg2: 0.9,
-		bg3: 1.8,
-		bg4: 3,
-		bg5: 4.5,
-		ground: 4.5
-	}
+  const pressUp = this.keyboard.up.isDown;
+  const pressDown = this.keyboard.down.isDown;
+  const pressLeft = this.keyboard.left.isDown;
+  const pressRight = this.keyboard.right.isDown;
+  const onTheGround = this.player.body.blocked.down;
 
-	/** Background Module */
-	if (enableBackgroundMoving) {
-		const backgroundParallaxLevel = JSON.parse(JSON.stringify(defaultBackgroundParallaxLevel))
+  const defaultBackgroundParallaxLevel = {
+    bg1: 0,
+    bg2: 0.9,
+    bg3: 1.8,
+    bg4: 3,
+    bg5: 4.5,
+    ground: 4.5,
+  };
 
-		if(pressDown && (pressLeft || pressRight)){
-			backgroundParallaxLevel['bg1'] = 0
-			backgroundParallaxLevel['bg2'] = 2.9
-			backgroundParallaxLevel['bg3'] = 3.8
-			backgroundParallaxLevel['bg4'] = 5
-			backgroundParallaxLevel['bg5'] = 6.5
-			backgroundParallaxLevel['ground'] = 6.5
-		}
+  /** Background Module */
+  if (enableBackgroundMoving) {
+    const backgroundParallaxLevel = JSON.parse(
+      JSON.stringify(defaultBackgroundParallaxLevel)
+    );
 
-		if(pressRight){
-				this.bg1.tilePositionX += backgroundParallaxLevel['bg1'];
-				this.bg2.tilePositionX += backgroundParallaxLevel['bg2'];
-				this.bg3.tilePositionX += backgroundParallaxLevel['bg3'];
-				this.bg4.tilePositionX += backgroundParallaxLevel['bg4'];
-				this.bg5.tilePositionX += backgroundParallaxLevel['bg5'];
-				this.ground.tilePositionX += backgroundParallaxLevel['ground'];
-		}
-		if(pressLeft){
-				this.bg1.tilePositionX -= backgroundParallaxLevel['bg1'];
-				this.bg2.tilePositionX -= backgroundParallaxLevel['bg2'];
-				this.bg3.tilePositionX -= backgroundParallaxLevel['bg3'];
-				this.bg4.tilePositionX -= backgroundParallaxLevel['bg4'];
-				this.bg5.tilePositionX -= backgroundParallaxLevel['bg5'];
-				this.ground.tilePositionX -= backgroundParallaxLevel['ground'];
-		}
-	}
+    if (pressDown && (pressLeft || pressRight)) {
+      backgroundParallaxLevel["bg1"] = 0;
+      backgroundParallaxLevel["bg2"] = 2.9;
+      backgroundParallaxLevel["bg3"] = 3.8;
+      backgroundParallaxLevel["bg4"] = 5;
+      backgroundParallaxLevel["bg5"] = 6.5;
+      backgroundParallaxLevel["ground"] = 6.5;
+    }
+
+    if (pressRight) {
+      this.bg1.tilePositionX += backgroundParallaxLevel["bg1"];
+      this.bg2.tilePositionX += backgroundParallaxLevel["bg2"];
+      this.bg3.tilePositionX += backgroundParallaxLevel["bg3"];
+      this.bg4.tilePositionX += backgroundParallaxLevel["bg4"];
+      this.bg5.tilePositionX += backgroundParallaxLevel["bg5"];
+      this.ground.tilePositionX += backgroundParallaxLevel["ground"];
+    }
+    if (pressLeft) {
+      this.bg1.tilePositionX -= backgroundParallaxLevel["bg1"];
+      this.bg2.tilePositionX -= backgroundParallaxLevel["bg2"];
+      this.bg3.tilePositionX -= backgroundParallaxLevel["bg3"];
+      this.bg4.tilePositionX -= backgroundParallaxLevel["bg4"];
+      this.bg5.tilePositionX -= backgroundParallaxLevel["bg5"];
+      this.ground.tilePositionX -= backgroundParallaxLevel["ground"];
+    }
+  }
 
   /** Move Module */
   if (enableMoveModule) {
-
     if (pressUp) {
       // this.player.y -= this.playerSpeed
       if (onTheGround) {
@@ -283,7 +285,7 @@ scene.update = function () {
       // this.player.anims.play('crouch', true)
 
       if (onTheGround && pressLeft) {
-				this.player.flipX = true;
+        this.player.flipX = true;
         // this.player.x -= this.playerSpeed + this.playerBoostSpeed;
         this.player.anims.play("slide", true);
       } else if (onTheGround && pressRight) {
