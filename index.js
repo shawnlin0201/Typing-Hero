@@ -187,7 +187,7 @@ scene.create = function () {
   });
 
   this.anims.create({
-    key: "atSpace",
+    key: "jump",
     frames: this.anims.generateFrameNumbers("player", {
       start: 8,
       end: 8,
@@ -264,26 +264,19 @@ scene.update = function () {
   /** Move Module */
   if (enableMoveModule) {
     if (pressUp) {
-      // this.player.y -= this.playerSpeed
       if (onTheGround) {
         this.player.anims.play("stand", true);
         this.player.body.setVelocityY(this.playerJumpHeight);
       }
       if (!onTheGround) {
-        this.player.anims.play("atSpace", true);
+        this.player.anims.play("jump", true);
       }
       if (pressLeft) {
         this.player.flipX = true;
-        // this.player.x -= this.playerSpeed;
       } else if (pressRight) {
         this.player.flipX = false;
-        // this.player.x += this.playerSpeed;
       }
     } else if (pressDown) {
-      // this.player.y += this.playerSpeed
-
-      // this.player.anims.play('crouch', true)
-
       if (onTheGround && pressLeft) {
         this.player.flipX = true;
         // this.player.x -= this.playerSpeed + this.playerBoostSpeed;
