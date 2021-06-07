@@ -46,6 +46,11 @@ scene.init = function () {
 scene.preload = function () {
   this.load.spritesheet(
     "player",
+    "images/characters/Male-person/Tilesheet/character_malePerson_sheetHD.png",
+    { frameWidth: 192, frameHeight: 256 }
+  );
+  this.load.spritesheet(
+    "zombie",
     "images/characters/Zombie/Tilesheet/character_zombie_sheetHD.png",
     { frameWidth: 192, frameHeight: 256 }
   );
@@ -305,12 +310,10 @@ scene.update = function () {
     } else if (pressRight) {
       this.player.flipX = false;
       // this.player.x += this.playerSpeed;
-
       this.player.anims.play("walk", true);
     } else if (pressLeft) {
       this.player.flipX = true;
       // this.player.x -= this.playerSpeed;
-
       this.player.anims.play("walk", true);
     } else {
       /** default */
